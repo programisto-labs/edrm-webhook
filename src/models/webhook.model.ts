@@ -1,5 +1,4 @@
-import mongoose from 'mongoose';
-const { Schema } = mongoose;
+import mongoose, { Schema } from 'mongoose';
 
 const webhookSchema = new Schema({
     url: {
@@ -16,7 +15,7 @@ const webhookSchema = new Schema({
     }
 });
 
-webhookSchema.pre('save', function(next) {
+webhookSchema.pre('save', function(this: any, next: (err?: Error) => void) {
     const webhook = this;
     if (!isValidURL(webhook.url)) {
         const err = new Error('URL invalide');
@@ -26,7 +25,7 @@ webhookSchema.pre('save', function(next) {
     }
 });
 
-function isValidURL(url) {
+function isValidURL(url: string): boolean {
     const regex = /^(ftp|http|https):\/\/[^ "]+$/;
     return regex.test(url);
 }
