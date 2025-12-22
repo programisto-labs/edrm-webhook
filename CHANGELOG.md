@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/programisto-labs/edrm-webhook/compare/v1.0.2...v1.0.3) (2025-12-22)
+
+
+### Bug Fixes
+
+* fix endurance classes ([3c2cc99](https://github.com/programisto-labs/edrm-webhook/commit/3c2cc99a40d3ad4f7071a824fbb4574d26a0f7f5))
+
 ## [1.0.2](https://github.com/programisto-labs/edrm-webhook/compare/v1.0.1...v1.0.2) (2025-12-22)
 
 
