@@ -8,7 +8,6 @@ class WebhookRouter extends EnduranceRouter {
   }
 
   setupRoutes() {
-
     const webhookSecurityOptions: SecurityOptions = {
       requireAuth: true,
       permissions: []
