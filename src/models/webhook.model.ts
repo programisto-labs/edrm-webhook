@@ -1,27 +1,38 @@
 import { EnduranceSchema, EnduranceModelType } from '@programisto/endurance';
 
-function isValidURL(url: string): boolean {
-    const regex = /^(ftp|http|https):\/\/[^ "]+$/;
-    return regex.test(url);
-}
-
+@EnduranceModelType.modelOptions({
+    schemaOptions: {
+        collection: 'webhooks',
+        timestamps: true,
+        toObject: { virtuals: true },
+        toJSON: { virtuals: true },
+        _id: true,
+        validateBeforeSave: false,
+        strict: false
+    }
+})
 class Webhook extends EnduranceSchema {
-    @EnduranceModelType.prop({
-        required: true,
-        validate: {
-            validator: (url: string) => isValidURL(url),
-            message: 'URL invalide'
-        }
-    })
-    public url!: string;
+    @EnduranceModelType.prop({ required: true })
+    public name!: string;
 
     @EnduranceModelType.prop({ required: true })
-    public event!: string;
+    public url!: string;
 
-    @EnduranceModelType.prop({ required: false, default: Date.now })
-    public created_at!: Date;
+    @EnduranceModelType.prop({ type: [String], default: [] })
+    public events!: string[];
+
+    @EnduranceModelType.prop({ required: true, default: true })
+    public isActive!: boolean;
+
+    @EnduranceModelType.prop({ required: false })
+    public lastTriggeredAt?: Date;
+
+    public static getModel() {
+        return WebhookModel;
+    }
 }
 
-// Génération du modèle et export
-const WebhookModel = Webhook.getModel();
+const WebhookModel = EnduranceModelType.getModelForClass(Webhook);
 export default WebhookModel;
+export { Webhook };
+

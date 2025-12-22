@@ -2,25 +2,24 @@ import axios from 'axios';
 import { enduranceListener } from '@programisto/endurance';
 import Webhook from '../models/webhook.model.js';
 
-interface WebhookData {
-  url: string;
-  event: string;
-}
-
 type WebhookEventData = Record<string, unknown>;
 
-const callWebhook = async (webhook: WebhookData, event: string, data: WebhookEventData) => {
+const callWebhook = async (webhook: any, event: string, data: WebhookEventData) => {
   try {
     const response = await axios.post(webhook.url, { event, data });
-    console.log(`Webhook called: ${webhook.url} for event: ${event}, Response: ${response.status}`);
+    console.log(`Webhook called: ${webhook.name} (${webhook.url}) for event: ${event}, Response: ${response.status}`);
+
+    // Mettre à jour lastTriggeredAt après un appel réussi
+    webhook.lastTriggeredAt = new Date();
+    await webhook.save();
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
       if (error.response) {
-        console.error(`Webhook call failed: ${webhook.url}, Status: ${error.response.status}, Data: ${error.response.data}`);
+        console.error(`Webhook call failed: ${webhook.name} (${webhook.url}), Status: ${error.response.status}, Data: ${error.response.data}`);
       } else if (error.request) {
-        console.error(`Webhook call failed: ${webhook.url}, No response received`);
+        console.error(`Webhook call failed: ${webhook.name} (${webhook.url}), No response received`);
       } else {
-        console.error(`Webhook call failed: ${webhook.url}, Error: ${error.message}`);
+        console.error(`Webhook call failed: ${webhook.name} (${webhook.url}), Error: ${error.message}`);
       }
     } else if (error instanceof Error) {
       console.error(`Unknown error calling webhook: ${error.message}`);
@@ -39,13 +38,17 @@ enduranceListener.createAnyListener(async (...args: unknown[]) => {
     const event = args[0] as string;
     const data = (args.length > 1 ? args[1] : {}) as WebhookEventData;
 
-    const webhooks = await Webhook.find({ event }).lean();
-    const webhookList = webhooks as WebhookData[];
+    // Chercher les webhooks actifs qui écoutent cet événement
+    const webhooks = await Webhook.find({
+      events: event,
+      isActive: true
+    });
 
-    webhookList.forEach((webhook: WebhookData) => {
+    webhooks.forEach((webhook) => {
       callWebhook(webhook, event, data).catch((err) => {
         console.error('Error in calling webhook', {
           error: err instanceof Error ? err.message : err,
+          webhookName: webhook.name,
           webhookUrl: webhook.url,
           event
         });
