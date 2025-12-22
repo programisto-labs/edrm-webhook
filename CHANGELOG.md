@@ -1,3 +1,12 @@
+## [1.0.4](https://github.com/programisto-labs/edrm-webhook/compare/v1.0.3...v1.0.4) (2025-12-22)
+
+
+### Bug Fixes
+
+* update model ([b444fc0](https://github.com/programisto-labs/edrm-webhook/commit/b444fc03c6d9de96af2dd6ec05b244efed83aa85))
+* update model ([b413ea2](https://github.com/programisto-labs/edrm-webhook/commit/b413ea2a05fbbae55fecd134989bb1ff4c8a2465))
+* update model ([e4eaade](https://github.com/programisto-labs/edrm-webhook/commit/e4eaadeec10c763a6c0c8d74bcd73870e2c9b96b))
+
 ## [1.0.3](https://github.com/programisto-labs/edrm-webhook/compare/v1.0.2...v1.0.3) (2025-12-22)
 
 
