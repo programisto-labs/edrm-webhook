@@ -35,4 +35,3 @@ class Webhook extends EnduranceSchema {
 const WebhookModel = EnduranceModelType.getModelForClass(Webhook);
 export default WebhookModel;
 export { Webhook };
-
