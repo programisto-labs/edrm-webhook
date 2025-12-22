@@ -1,35 +1,27 @@
-import mongoose, { Schema } from 'mongoose';
-
-const webhookSchema = new Schema({
-    url: {
-        type: String,
-        required: true
-    },
-    event: {
-        type: String,
-        required: true
-    },
-    created_at: {
-        type: Date,
-        default: Date.now
-    }
-});
-
-webhookSchema.pre('save', function(this: any, next: (err?: Error) => void) {
-    const webhook = this;
-    if (!isValidURL(webhook.url)) {
-        const err = new Error('URL invalide');
-        next(err);
-    } else {
-        next();
-    }
-});
+import { EnduranceSchema, EnduranceModelType } from '@programisto/endurance';
 
 function isValidURL(url: string): boolean {
     const regex = /^(ftp|http|https):\/\/[^ "]+$/;
     return regex.test(url);
 }
 
-const Webhook = mongoose.model('Webhook', webhookSchema);
+class Webhook extends EnduranceSchema {
+    @EnduranceModelType.prop({
+        required: true,
+        validate: {
+            validator: (url: string) => isValidURL(url),
+            message: 'URL invalide'
+        }
+    })
+    public url!: string;
 
-export default Webhook;
+    @EnduranceModelType.prop({ required: true })
+    public event!: string;
+
+    @EnduranceModelType.prop({ required: false, default: Date.now })
+    public created_at!: Date;
+}
+
+// Génération du modèle et export
+const WebhookModel = Webhook.getModel();
+export default WebhookModel;

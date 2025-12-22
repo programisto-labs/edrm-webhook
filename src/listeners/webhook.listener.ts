@@ -1,5 +1,5 @@
 import axios from 'axios';
-import listener from 'endurance-core/lib/listener';
+import { enduranceListener } from '@programisto/endurance';
 import Webhook from '../models/webhook.model';
 
 interface WebhookData {
@@ -28,20 +28,35 @@ const callWebhook = async (webhook: WebhookData, event: string, data: WebhookEve
   }
 };
 
-listener.createAnyListener(async (event: string, data: WebhookEventData) => {
-  console.log(`Event received: ${event}`);
+enduranceListener.createAnyListener(async (...args: unknown[]) => {
   try {
-    const webhooks = await Webhook.find({ event }).lean<WebhookData[]>();
-    webhooks.forEach((webhook: WebhookData) => {
+    // onAny passe généralement (event, ...data) comme paramètres séparés
+    if (!args || args.length === 0 || typeof args[0] !== 'string') {
+      console.error('Invalid arguments provided to webhook listener', { args });
+      return;
+    }
+
+    const event = args[0] as string;
+    const data = (args.length > 1 ? args[1] : {}) as WebhookEventData;
+
+    const webhooks = await Webhook.find({ event }).lean();
+    const webhookList = webhooks as WebhookData[];
+
+    webhookList.forEach((webhook: WebhookData) => {
       callWebhook(webhook, event, data).catch((err) => {
-        console.error(`Error in calling webhook: ${webhook.url}`, err);
+        console.error('Error in calling webhook', {
+          error: err instanceof Error ? err.message : err,
+          webhookUrl: webhook.url,
+          event
+        });
       });
     });
-  } catch (err) {
-    console.error(`Error processing event: ${event}`, err);
+  } catch (listenerError) {
+    console.error('Error in webhook listener', {
+      error: listenerError instanceof Error ? listenerError.message : listenerError,
+      args
+    });
   }
 });
 
-console.log('Webhook listener initialized');
-
-export default listener;
+export default enduranceListener;
