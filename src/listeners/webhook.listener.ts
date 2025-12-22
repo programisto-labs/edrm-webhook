@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { enduranceListener } from '@programisto/endurance';
-import Webhook from '../models/webhook.model';
+import Webhook from '../models/webhook.model.js';
 
 interface WebhookData {
   url: string;

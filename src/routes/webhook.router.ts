@@ -1,5 +1,5 @@
 import { EnduranceRouter, SecurityOptions } from '@programisto/endurance';
-import Webhook from '../models/webhook.model';
+import Webhook from '../models/webhook.model.js';
 
 class WebhookRouter extends EnduranceRouter {
   protected setupRoutes(): void {
