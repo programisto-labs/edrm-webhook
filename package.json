@@ -1,29 +1,33 @@
 {
-  "name": "edrm-webhook",
-  "version": "0.2.1",
+  "name": "@programisto/edrm-webhook",
+  "version": "0.3.0",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "dev": "ts-node src/index.ts",
+    "start": "node ./dist/bin/www",
+    "dev": "tsc-watch --onSuccess \"node ./dist/bin/www\"",
+    "test": "echo \"Tests skipped\"",
     "build": "tsc",
-    "lint": "eslint \"src/**/*.{ts,tsx}\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint \"**/*.{ts,tsx}\"",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/florianduport/edrm-webhook.git"
+    "url": "git+https://github.com/programisto-labs/edrm-webhook"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/florianduport/edrm-webhook/issues"
+    "url": "https://github.com/programisto-labs/edrm-webhook/issues"
   },
-  "homepage": "https://github.com/florianduport/edrm-webhook#readme",
+  "homepage": "https://github.com/programisto-labs/edrm-webhook#readme",
   "description": "",
   "dependencies": {
+    "@programisto/endurance": "^1.0.8",
     "axios": "^1.7.3",
-    "mongoose": "^8.16.0"
+    "mongoose": "^8.16.0",
+    "tsc-watch": "^6.2.1"
   },
   "devDependencies": {
     "@types/mongoose": "^5.11.96",
@@ -36,7 +40,27 @@
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-promise": "^6.6.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "@types/debug": "^4.1.12",
+    "@types/jest": "^29.0.0",
+    "@types/nodemailer": "^6.4.17",
+    "concurrently": "^9.1.2",
+    "reflect-metadata": "^0.2.2",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^11.0.3",
+    "@semantic-release/npm": "^12.0.1",
+    "@semantic-release/release-notes-generator": "^14.0.3",
+    "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/passport": "^1.0.17",
+    "@types/passport-jwt": "^4.0.1",
+    "@types/passport-local": "^1.0.38",
+    "commitlint": "^19.8.1",
+    "husky": "^8.0.0",
+    "semantic-release": "^24.2.5"
   },
   "files": [
     "dist",

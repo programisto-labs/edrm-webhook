@@ -8,12 +8,18 @@ class WebhookRouter extends EnduranceRouter {
   }
 
   setupRoutes() {
-    const securedOptions: SecurityOptions = {
+
+    const webhookSecurityOptions: SecurityOptions = {
       requireAuth: true,
-      permissions: ['canManageWebhooks']
+      permissions: []
     };
 
-    this.secure(securedOptions);
+    const webhookPermission = process.env.EDRM_MAILER_MAIL_MESSAGE_PERMISSION || '';
+    if (webhookPermission) {
+      webhookSecurityOptions.permissions?.push(webhookPermission);
+    }
+
+    this.secure(webhookSecurityOptions);
 
     this.router.post('/webhook', async (req: EnduranceRequest, res: any) => {
       try {
@@ -25,7 +31,7 @@ class WebhookRouter extends EnduranceRouter {
       }
     });
 
-    this.router.get('/webhook', async (req: EnduranceRequest, res: any) => {
+    this.router.get('/webhook', webhookSecurityOptions, async (req: EnduranceRequest, res: any) => {
       try {
         const webhooks = await Webhook.find().sort({ created_at: -1 });
         res.json(webhooks);
@@ -34,7 +40,7 @@ class WebhookRouter extends EnduranceRouter {
       }
     });
 
-    this.router.get('/webhook/:id', async (req: EnduranceRequest, res: any) => {
+    this.router.get('/webhook/:id', webhookSecurityOptions, async (req: EnduranceRequest, res: any) => {
       try {
         const webhook = await Webhook.findById(req.params.id);
         if (!webhook) {
@@ -46,7 +52,7 @@ class WebhookRouter extends EnduranceRouter {
       }
     });
 
-    this.router.put('/webhook/:id', async (req: EnduranceRequest, res: any) => {
+    this.router.put('/webhook/:id', webhookSecurityOptions, async (req: EnduranceRequest, res: any) => {
       try {
         const webhook = await Webhook.findByIdAndUpdate(
           req.params.id,
@@ -62,7 +68,7 @@ class WebhookRouter extends EnduranceRouter {
       }
     });
 
-    this.router.delete('/webhook/:id', async (req: EnduranceRequest, res: any) => {
+    this.router.delete('/webhook/:id', webhookSecurityOptions, async (req: EnduranceRequest, res: any) => {
       try {
         const webhook = await Webhook.findByIdAndDelete(req.params.id);
         if (!webhook) {
