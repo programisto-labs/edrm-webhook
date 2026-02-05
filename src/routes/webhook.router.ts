@@ -204,7 +204,9 @@ class WebhookRouter extends EnduranceRouter {
    */
   private async createWebhook(req: any, res: any) {
     try {
-      const webhook = new Webhook(req.body);
+      const payload = { ...req.body };
+      if (req.entity?._id) payload.entityId = req.entity._id;
+      const webhook = new Webhook(payload);
       const savedWebhook = await webhook.save();
       res.status(201).json(savedWebhook);
     } catch (error: any) {
@@ -218,7 +220,9 @@ class WebhookRouter extends EnduranceRouter {
    */
   private async listWebhooks(req: any, res: any) {
     try {
-      const webhooks = await Webhook.find().sort({ created_at: -1 });
+      const query: any = {};
+      if (req.entity?._id) query.entityId = req.entity._id;
+      const webhooks = await Webhook.find(query).sort({ createdAt: -1 });
       res.json(webhooks);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -235,6 +239,9 @@ class WebhookRouter extends EnduranceRouter {
       if (!webhook) {
         return res.status(404).json({ error: 'Webhook non trouvé' });
       }
+      if (req.entity?._id && (webhook as any).entityId && !(webhook as any).entityId.equals(req.entity._id)) {
+        return res.status(404).json({ error: 'Webhook non trouvé' });
+      }
       res.json(webhook);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -247,14 +254,18 @@ class WebhookRouter extends EnduranceRouter {
    */
   private async updateWebhook(req: any, res: any) {
     try {
+      const existing = await Webhook.findById(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ error: 'Webhook non trouvé' });
+      }
+      if (req.entity?._id && (existing as any).entityId && !(existing as any).entityId.equals(req.entity._id)) {
+        return res.status(404).json({ error: 'Webhook non trouvé' });
+      }
       const webhook = await Webhook.findByIdAndUpdate(
         req.params.id,
         req.body,
         { new: true, runValidators: true }
       );
-      if (!webhook) {
-        return res.status(404).json({ error: 'Webhook non trouvé' });
-      }
       res.json(webhook);
     } catch (error: any) {
       res.status(400).json({ error: error.message });
@@ -267,10 +278,14 @@ class WebhookRouter extends EnduranceRouter {
    */
   private async deleteWebhook(req: any, res: any) {
     try {
-      const webhook = await Webhook.findByIdAndDelete(req.params.id);
+      const webhook = await Webhook.findById(req.params.id);
       if (!webhook) {
         return res.status(404).json({ error: 'Webhook non trouvé' });
       }
+      if (req.entity?._id && (webhook as any).entityId && !(webhook as any).entityId.equals(req.entity._id)) {
+        return res.status(404).json({ error: 'Webhook non trouvé' });
+      }
+      await Webhook.findByIdAndDelete(req.params.id);
       res.json({ message: 'Webhook supprimé avec succès' });
     } catch (error: any) {
       res.status(500).json({ error: error.message });

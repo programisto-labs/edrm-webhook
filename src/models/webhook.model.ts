@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { EnduranceSchema, EnduranceModelType } from '@programisto/endurance';
 
 @EnduranceModelType.modelOptions({
@@ -26,6 +27,10 @@ class Webhook extends EnduranceSchema {
 
     @EnduranceModelType.prop({ required: false })
     public lastTriggeredAt?: Date;
+
+    /** Identifiant de l'entité (portail multi-entités). Optionnel pour rétrocompatibilité. */
+    @EnduranceModelType.prop({ required: false })
+    public entityId?: Types.ObjectId;
 
     public static getModel() {
         return WebhookModel;
