@@ -1,8 +1,18 @@
 import axios from 'axios';
+import { Types } from 'mongoose';
 import { enduranceListener } from '@programisto/endurance';
 import Webhook from '../models/webhook.model.js';
 
 type WebhookEventData = Record<string, unknown>;
+
+/** Normalise entityId (ObjectId ou string) pour la requête. */
+function toEntityIdFilter(payloadEntityId: unknown): { $in: (Types.ObjectId | string)[] } | null {
+  if (payloadEntityId == null) return null;
+  const id = payloadEntityId instanceof Types.ObjectId
+    ? payloadEntityId
+    : new Types.ObjectId(String(payloadEntityId));
+  return { $in: [id, id.toString()] };
+}
 
 const callWebhook = async (webhook: any, event: string, data: WebhookEventData) => {
   try {
@@ -38,11 +48,23 @@ enduranceListener.createAnyListener(async (...args: unknown[]) => {
     const event = args[0] as string;
     const data = (args.length > 1 ? args[1] : {}) as WebhookEventData;
 
-    // Chercher les webhooks actifs qui écoutent cet événement
-    const webhooks = await Webhook.find({
+    // Filtre par entité (multi-entité) : ne déclencher que les webhooks de la même entité que le payload
+    const query: Record<string, unknown> = {
       events: event,
       isActive: true
-    });
+    };
+    const payloadEntityId = data?.entityId;
+    if (toEntityIdFilter(payloadEntityId)) {
+      query.entityId = toEntityIdFilter(payloadEntityId);
+    } else {
+      // Événement sans entityId (legacy) → uniquement les webhooks sans entityId
+      query.$or = [
+        { entityId: null },
+        { entityId: { $exists: false } }
+      ];
+    }
+
+    const webhooks = await Webhook.find(query);
 
     webhooks.forEach((webhook) => {
       callWebhook(webhook, event, data).catch((err) => {
