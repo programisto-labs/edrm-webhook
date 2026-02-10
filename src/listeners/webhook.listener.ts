@@ -53,7 +53,7 @@ enduranceListener.createAnyListener(async (...args: unknown[]) => {
       events: event,
       isActive: true
     };
-    const payloadEntityId = data?.entityId;
+    const payloadEntityId = data?.organizationEntityId ?? data?.entityId;
     if (toEntityIdFilter(payloadEntityId)) {
       query.entityId = toEntityIdFilter(payloadEntityId);
     } else {
