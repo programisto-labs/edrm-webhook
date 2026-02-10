@@ -1,3 +1,10 @@
+## [1.0.7](https://github.com/programisto-labs/edrm-webhook/compare/v1.0.6...v1.0.7) (2026-02-10)
+
+
+### Bug Fixes
+
+* add entity ([3b32619](https://github.com/programisto-labs/edrm-webhook/commit/3b32619a78e85833ea3236561c3bffd903198925))
+
 ## [1.0.6](https://github.com/programisto-labs/edrm-webhook/compare/v1.0.5...v1.0.6) (2026-02-06)
 
 
