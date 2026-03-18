@@ -5,13 +5,25 @@ import Webhook from '../models/webhook.model.js';
 
 type WebhookEventData = Record<string, unknown>;
 
-/** Normalise entityId (ObjectId ou string) pour la requête. */
+const OBJECT_ID_HEX_LENGTH = 24;
+const VALID_OBJECT_ID_HEX = /^[a-fA-F0-9]{24}$/;
+
+/**
+ * Normalise entityId (ObjectId ou string) pour la requête.
+ * Retourne null si payloadEntityId est null/undefined ou n'est pas un ObjectId valide (ex: "default"),
+ * car le schéma Webhook attend un ObjectId et Mongoose échoue en castant une string non-hex.
+ */
 function toEntityIdFilter(payloadEntityId: unknown): { $in: (Types.ObjectId | string)[] } | null {
   if (payloadEntityId == null) return null;
-  const id = payloadEntityId instanceof Types.ObjectId
-    ? payloadEntityId
-    : new Types.ObjectId(String(payloadEntityId));
-  return { $in: [id, id.toString()] };
+  if (payloadEntityId instanceof Types.ObjectId) {
+    return { $in: [payloadEntityId, payloadEntityId.toString()] };
+  }
+  const str = String(payloadEntityId);
+  if (str.length !== OBJECT_ID_HEX_LENGTH || !VALID_OBJECT_ID_HEX.test(str)) {
+    return null;
+  }
+  const id = new Types.ObjectId(str);
+  return { $in: [id, str] };
 }
 
 const callWebhook = async (webhook: any, event: string, data: WebhookEventData) => {
