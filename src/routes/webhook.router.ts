@@ -1,5 +1,9 @@
 import { EnduranceRouter, SecurityOptions } from '@programisto/endurance';
 import Webhook from '../models/webhook.model.js';
+import {
+  deriveWebhookEvents,
+  normalizeWebhookSubscriptions
+} from '../filtering/webhook-payload-filter.js';
 
 class WebhookRouter extends EnduranceRouter {
   protected setupRoutes(): void {
@@ -205,6 +209,11 @@ class WebhookRouter extends EnduranceRouter {
   private async createWebhook(req: any, res: any) {
     try {
       const payload = { ...req.body };
+      if (Object.prototype.hasOwnProperty.call(payload, 'subscriptions') || Object.prototype.hasOwnProperty.call(payload, 'events')) {
+        const subscriptions = normalizeWebhookSubscriptions(payload.subscriptions, payload.events);
+        payload.subscriptions = subscriptions;
+        payload.events = deriveWebhookEvents(subscriptions);
+      }
       if (req.entity?._id) payload.entityId = req.entity._id;
       const webhook = new Webhook(payload);
       const savedWebhook = await webhook.save();
@@ -261,9 +270,15 @@ class WebhookRouter extends EnduranceRouter {
       if (req.entity?._id && (existing as any).entityId && !(existing as any).entityId.equals(req.entity._id)) {
         return res.status(404).json({ error: 'Webhook non trouvé' });
       }
+      const payload = { ...req.body };
+      if (Object.prototype.hasOwnProperty.call(payload, 'subscriptions') || Object.prototype.hasOwnProperty.call(payload, 'events')) {
+        const subscriptions = normalizeWebhookSubscriptions(payload.subscriptions, payload.events);
+        payload.subscriptions = subscriptions;
+        payload.events = deriveWebhookEvents(subscriptions);
+      }
       const webhook = await Webhook.findByIdAndUpdate(
         req.params.id,
-        req.body,
+        payload,
         { new: true, runValidators: true }
       );
       res.json(webhook);

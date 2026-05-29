@@ -2,6 +2,10 @@ import axios from 'axios';
 import { Types } from 'mongoose';
 import { enduranceListener } from '@programisto/endurance';
 import Webhook from '../models/webhook.model.js';
+import {
+  evaluateWebhookPayloadFilter,
+  findMatchingWebhookSubscription
+} from '../filtering/webhook-payload-filter.js';
 
 type WebhookEventData = Record<string, unknown>;
 
@@ -79,6 +83,20 @@ enduranceListener.createAnyListener(async (...args: unknown[]) => {
     const webhooks = await Webhook.find(query);
 
     webhooks.forEach((webhook) => {
+      try {
+        const matchingSubscription = findMatchingWebhookSubscription(webhook as any, event);
+        if (matchingSubscription && !evaluateWebhookPayloadFilter(matchingSubscription.filter, data)) {
+          return;
+        }
+      } catch (subscriptionError) {
+        console.error('Webhook filter evaluation failed', {
+          error: subscriptionError instanceof Error ? subscriptionError.message : subscriptionError,
+          webhookName: webhook.name,
+          webhookUrl: webhook.url,
+          event
+        });
+        return;
+      }
       callWebhook(webhook, event, data).catch((err) => {
         console.error('Error in calling webhook', {
           error: err instanceof Error ? err.message : err,

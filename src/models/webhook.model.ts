@@ -1,5 +1,6 @@
 import { Types } from 'mongoose';
 import { EnduranceSchema, EnduranceModelType } from '@programisto/endurance';
+import type { WebhookSubscription } from '../filtering/webhook-payload-filter.js';
 
 @EnduranceModelType.modelOptions({
     schemaOptions: {
@@ -21,6 +22,9 @@ class Webhook extends EnduranceSchema {
 
     @EnduranceModelType.prop({ type: [String], default: [] })
     public events!: string[];
+
+    @EnduranceModelType.prop({ type: [Object], default: [] })
+    public subscriptions!: WebhookSubscription[];
 
     @EnduranceModelType.prop({ required: true, default: true })
     public isActive!: boolean;
