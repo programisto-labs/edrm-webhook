@@ -1,3 +1,10 @@
+## [1.0.9](https://github.com/programisto-labs/edrm-webhook/compare/v1.0.8...v1.0.9) (2026-05-29)
+
+
+### Bug Fixes
+
+* add filter webhooks ([a441865](https://github.com/programisto-labs/edrm-webhook/commit/a441865d9bb1c0d25126c026f3c62f71787cdf25))
+
 ## [1.0.8](https://github.com/programisto-labs/edrm-webhook/compare/v1.0.7...v1.0.8) (2026-03-18)
 
 
