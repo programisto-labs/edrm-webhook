@@ -1,3 +1,11 @@
+## [1.0.10](https://github.com/programisto-labs/edrm-webhook/compare/v1.0.9...v1.0.10) (2026-08-03)
+
+
+### Bug Fixes
+
+* allow mixed index ([40fc309](https://github.com/programisto-labs/edrm-webhook/commit/40fc309cb0de0b1aaccb6e7763b73bde4296b0c8))
+* lint ([ebab8d9](https://github.com/programisto-labs/edrm-webhook/commit/ebab8d9f46a1ff44841558815653ff337652ff72))
+
 ## [1.0.9](https://github.com/programisto-labs/edrm-webhook/compare/v1.0.8...v1.0.9) (2026-05-29)
 
 
