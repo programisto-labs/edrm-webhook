@@ -10,8 +10,11 @@ import type { WebhookSubscription } from '../filtering/webhook-payload-filter.js
         toJSON: { virtuals: true },
         _id: true,
         validateBeforeSave: false,
-        strict: false
-    }
+        strict: false,
+    },
+    options: {
+        allowMixed: EnduranceModelType.Severity.ALLOW,
+    },
 })
 class Webhook extends EnduranceSchema {
     @EnduranceModelType.prop({ required: true })
