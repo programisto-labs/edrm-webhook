@@ -230,7 +230,9 @@ class WebhookRouter extends EnduranceRouter {
   private async listWebhooks(req: any, res: any) {
     try {
       const query: any = {};
-      if (req.entity?._id) query.entityId = req.entity._id;
+      // Webhooks de l'entité de la requête seulement ; sans entité, aucun (jamais toute la base).
+      if (!req.entity?._id) return res.json([]);
+      query.entityId = req.entity._id;
       const webhooks = await Webhook.find(query).sort({ createdAt: -1 });
       res.json(webhooks);
     } catch (error: any) {
@@ -248,7 +250,7 @@ class WebhookRouter extends EnduranceRouter {
       if (!webhook) {
         return res.status(404).json({ error: 'Webhook non trouvé' });
       }
-      if (req.entity?._id && (webhook as any).entityId && !(webhook as any).entityId.equals(req.entity._id)) {
+      if ((webhook as any).entityId && !(req.entity?._id && (webhook as any).entityId.equals(req.entity._id))) {
         return res.status(404).json({ error: 'Webhook non trouvé' });
       }
       res.json(webhook);
@@ -267,7 +269,7 @@ class WebhookRouter extends EnduranceRouter {
       if (!existing) {
         return res.status(404).json({ error: 'Webhook non trouvé' });
       }
-      if (req.entity?._id && (existing as any).entityId && !(existing as any).entityId.equals(req.entity._id)) {
+      if ((existing as any).entityId && !(req.entity?._id && (existing as any).entityId.equals(req.entity._id))) {
         return res.status(404).json({ error: 'Webhook non trouvé' });
       }
       const payload = { ...req.body };
@@ -297,7 +299,7 @@ class WebhookRouter extends EnduranceRouter {
       if (!webhook) {
         return res.status(404).json({ error: 'Webhook non trouvé' });
       }
-      if (req.entity?._id && (webhook as any).entityId && !(webhook as any).entityId.equals(req.entity._id)) {
+      if ((webhook as any).entityId && !(req.entity?._id && (webhook as any).entityId.equals(req.entity._id))) {
         return res.status(404).json({ error: 'Webhook non trouvé' });
       }
       await Webhook.findByIdAndDelete(req.params.id);
